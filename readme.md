@@ -4,30 +4,17 @@
 > Manage docs across multiple packages
 
 ```js
-var ecodoc = require('ecodoc')
+var doc = ecodoc({ data: __dirname + '/cache' })
 
-// ...
+doc([ ...packages ], function (err, pkgs) {
+  // ...
+})
 ```
-
-A longer description of your function here.
 
 ## Installation
 
 ```sh
 $ npm install --save ecodoc
-```
-
-## Usage
-
-### `ecodoc()`
-
-A description of your function
-
-```js
-var foo = ecodoc()
-
-// Log results
-console.log(foo)
 ```
 
 ## License
