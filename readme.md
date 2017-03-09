@@ -3,18 +3,60 @@
 
 > Manage docs across multiple packages
 
-```js
-var doc = ecodoc({ data: __dirname + '/cache' })
+Ecodoc takes an array of GitHub projects, and gives you back their info + their readmes.  It caches the requests using leveldb and works good with [`pull-stream`](https://github.com/pull-stream/pull-stream).
 
-doc([ ...packages ], function (err, pkgs) {
+```js
+var docs = ecodoc({ data: __dirname + '/cache' })
+
+docs([
+  'audiojs/audio',
+  'audiojs/audio-buffer',
+  'audiojs/audio-speaker',
   // ...
+], function (err, pkgs) {
+  // Use resulting `pkgs`
 })
 ```
+
+This is inspired by [`ecosystem-docs`](https://www.npmjs.com/package/ecosystem-docs), to take a more simple approach.
 
 ## Installation
 
 ```sh
 $ npm install --save ecodoc
+```
+
+## Usage
+
+### `ecodoc(opts)`
+
+Create the ecodoc cache and returns the `docs` function.
+
+ - `opts.data` (`String`): Path to where the cache is stored.
+
+```js
+var docs = ecodocs({
+  data: __dirname + '/cache'
+})
+
+// ...
+```
+
+### `docs(names, done)`
+
+Fetch the info & readmes from the array of names.
+
+ - `names` (`Array`): GitHub repository names, e.g. `audiojs/audio`.
+ - `done` (`Function`): Completion callback with `(err, pkgs)`.
+
+```js
+docs([
+  'audiojs/audio',
+  'audiojs/audio-buffer',
+  // ...
+], function (err, pkgs) {
+  console.log(pkgs)
+})
 ```
 
 ## License
