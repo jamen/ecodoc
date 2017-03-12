@@ -26,7 +26,7 @@ GH_TOKEN=... npm run build
 Create an ecodoc mapping function (called [`docs`](#api_docs)) with some options
 
  - `cache` (`String`): Path to where to store leveldb cache. **Required**
- - `token` (`String`): GitHub API Token. Defaults to `process.env.GH_TOKEN`
+ - `token` (`String`): GitHub API Token. Defaults to `GH_TOKEN` env var. **Required**
  - `cacheMap` (`Function`): Map each project right before you cache it.
  - `map` (`Function`): Map all project info before you receive it.
 
@@ -81,6 +81,7 @@ This object contains:
 {
   name: 'audio',            // project name
   repo: 'audiojs/audio',    // project repo
+  desc: '...',              // project description
   group: 'core',            // project group (or falsy)
   latest_version: 'v1.2.0', // latest git tag version
   latest_ref: ...,          // latest git ref
