@@ -3,60 +3,99 @@
 
 > Manage docs across multiple packages
 
-Ecodoc takes an array of GitHub projects, and gives you back their info + their readmes.  It caches the requests using leveldb and works good with [`pull-stream`](https://github.com/pull-stream/pull-stream).
+Ecodoc maps an array of GitHub repository names to their info, contributors, latest version, and readme.
 
-```js
-var docs = ecodoc({ data: __dirname + '/cache' })
-
-docs([
-  'audiojs/audio',
-  'audiojs/audio-buffer',
-  'audiojs/audio-speaker',
-  // ...
-], function (err, pkgs) {
-  // Use resulting `pkgs`
-})
-```
-
-This is inspired by [`ecosystem-docs`](https://www.npmjs.com/package/ecosystem-docs), to take a more simple approach.
-
-## Installation
+## Install
 
 ```sh
-$ npm install --save ecodoc
+npm install --save ecodoc
 ```
 
 ## Usage
 
-### `ecodoc(opts)`
+**Note:** In order for this to work, you need to set `GH_TOKEN` environment variable, or pass in `opts.token`.  Otherwise, GitHub rate limits to 60 requests per hour.  This tool makes at least 1 request per repository to check if info is updated.  It makes 4 more requests for the info, contributors, tags, and README.
 
-Create the ecodoc cache and returns the `docs` function.
+If you are lazy, you can just put `GH_TOKEN=...` in front of a command that runs `ecodoc`:
 
- - `opts.data` (`String`): Path to where the cache is stored.
-
-```js
-var docs = ecodocs({
-  data: __dirname + '/cache'
-})
-
-// ...
+```sh
+GH_TOKEN=... npm run build
 ```
 
-### `docs(names, done)`
+### `ecodoc(opts)`
 
-Fetch the info & readmes from the array of names.
+Create an ecodoc mapping function (called [`docs`](#api_docs)) with some options
 
- - `names` (`Array`): GitHub repository names, e.g. `audiojs/audio`.
- - `done` (`Function`): Completion callback with `(err, pkgs)`.
+ - `cache` (`String`): Path to where to store leveldb cache. **Required**
+ - `token` (`String`): GitHub API Token. Defaults to `process.env.GH_TOKEN`
+ - `cacheMap` (`Function`): Map each project right before you cache it.
+ - `map` (`Function`): Map all project info before you receive it.
+
+```js
+var docs = ecodoc({
+  cache: __dirname + '/cache',
+  token: ..., // GH token, or just use `GH_TOKEN`
+})
+```
+
+### `docs(projects, done)`
+
+Map project names to their info, latest version, contributors, and readme.  They come from either requests or leveldb cache.
+
+You can provide `projects` as an array of GitHub repos, as an object in groups of arrays.
 
 ```js
 docs([
   'audiojs/audio',
-  'audiojs/audio-buffer',
-  // ...
-], function (err, pkgs) {
-  console.log(pkgs)
+  'audiojs/audio-buffer'
+], function (err, projects) {
+  console.log(projects)
+  // [ { repo: 'audiojs/audio', latest_version: 'v1.2.0' ... }
+  //   { repo: 'audiojs/audio-buffer', latest_version: 'v1.0.0' ... } ]
 })
+```
+
+Or in groups:
+
+```js
+docs({
+  core: [
+    'audiojs/audio',
+    'audiojs/audio-buffer'
+  ],
+  utility: [
+    'audiojs/is-audio-buffer'
+  ]
+}, function (err, projects) {
+  console.log(projects)
+  // [ { name: 'audio', group: 'core', ... },
+  //   { name: 'audio-buffer', group: 'core' },
+  //   { name: 'is-audio-buffer', group: 'utility' } ]
+})
+```
+
+### `project`
+
+This object contains:
+
+```js
+{
+  name: 'audio',            // project name
+  repo: 'audiojs/audio',    // project repo
+  group: 'core',            // project group (or falsy)
+  latest_version: 'v1.2.0', // latest git tag version
+  latest_ref: ...,          // latest git ref
+  readme: ...,              // README contents base64 encoded
+  contributors: [
+    {
+      username: 'dfcreative',                    // contributor username
+      profile: 'https://github.com/dfcreative',  // contributor profile
+      avatar: ...,                               // contributor avatar
+      id: 300067,                                // contributor id
+      contributions: 4                           // contributions
+    }
+    // ...
+  ]
+}
 ```
 
 ## License
