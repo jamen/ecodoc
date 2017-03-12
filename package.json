@@ -13,12 +13,6 @@
   "engines": {
     "node": ">=4"
   },
-  "scripts": {
-    "test": "node test"
-  },
-  "devDependencies": {
-    "tape": "^4.6.3"
-  },
   "keywords": [
     "ecodoc",
     "ecosystem",
